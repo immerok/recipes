@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.util.List;
 import java.util.stream.Stream;
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
 import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
-import net.mguenther.kafka.junit.ReadKeyValues;
-import net.mguenther.kafka.junit.SendValues;
+import net.mguenther.kafka.junit.SendValuesTransactional;
 import net.mguenther.kafka.junit.TopicConfig;
 
 /** A slim wrapper around <a href="https://mguenther.github.io/kafka-junit/">kafka-junit</a>. */
@@ -32,9 +30,10 @@ public class CookbookKafkaCluster extends EmbeddedKafkaCluster {
      * @param topicData data to write
      * @param <EVENT> event type
      */
-    public <EVENT> void createTopic(String topic, Stream<EVENT> topicData) {
+    public <EVENT> void createTopic(
+            String topic, Stream<EVENT> topicData, boolean failTransaction) {
         createTopic(TopicConfig.withName(topic));
-        topicData.forEach(record -> sendEventAsJSON(topic, record));
+        topicData.forEach(record -> sendEventAsJSON(topic, record, failTransaction));
     }
 
     /**
@@ -45,26 +44,15 @@ public class CookbookKafkaCluster extends EmbeddedKafkaCluster {
      * @param topicData data to write
      * @param <EVENT> event type
      */
-    public <EVENT> void createTopicAsync(String topic, Stream<EVENT> topicData) {
+    public <EVENT> void createTopicAsync(
+            String topic, Stream<EVENT> topicData, boolean failTransaction) {
         createTopic(TopicConfig.withName(topic));
-        new Thread(() -> topicData.forEach(record -> sendEventAsJSON(topic, record)), "Generator")
+        new Thread(
+                        () ->
+                                topicData.forEach(
+                                        record -> sendEventAsJSON(topic, record, failTransaction)),
+                        "Generator")
                 .start();
-    }
-
-    public List<String> getTopicRecords(String topic, int numRecords) {
-        return getTopicRecords(topic, 0, numRecords);
-    }
-
-    public List<String> getTopicRecords(String topic, int offset, int numRecords) {
-        final ReadKeyValues.ReadKeyValuesBuilder<String, String> from =
-                ReadKeyValues.from(topic).seekTo(0, offset).withLimit(numRecords);
-
-        try {
-            return readValues(from);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -72,12 +60,15 @@ public class CookbookKafkaCluster extends EmbeddedKafkaCluster {
      *
      * @param event An event to send to the topic.
      */
-    private <EVENT> void sendEventAsJSON(String topic, EVENT event) {
+    private <EVENT> void sendEventAsJSON(String topic, EVENT event, boolean failTransaction) {
         try {
-            final SendValues<String> sendRequest =
-                    SendValues.to(topic, OBJECT_MAPPER.writeValueAsString(event)).build();
+            final SendValuesTransactional<String> sendRequest =
+                    SendValuesTransactional.inTransaction(
+                                    topic, OBJECT_MAPPER.writeValueAsString(event))
+                            .withFailTransaction(failTransaction)
+                            .build();
+
             this.send(sendRequest);
-            Thread.sleep(100);
         } catch (InterruptedException | JsonProcessingException e) {
             throw new RuntimeException(e);
         }
