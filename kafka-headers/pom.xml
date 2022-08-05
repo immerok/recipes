@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.immerok</groupId>
-    <artifactId>cookbook-kafka-dead-letter</artifactId>
+    <artifactId>cookbook-kafka-headers</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>Flink Cookbook Recipe - Creating Dead Letter Queues</name>
+    <name>Flink Cookbook Recipe - Reading Apache Kafka Headers</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -110,6 +110,12 @@
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
             <scope>test</scope>
         </dependency>
 
@@ -223,7 +229,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.immerok.cookbook.KafkaDeadLetterTopic</mainClass>
+                                    <mainClass>com.immerok.cookbook.KafkaHeaders</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

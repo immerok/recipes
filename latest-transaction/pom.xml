@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.immerok</groupId>
-  <artifactId>cookbook</artifactId>
+  <artifactId>cookbook-latest-transaction</artifactId>
   <version>0.1</version>
   <packaging>jar</packaging>
 

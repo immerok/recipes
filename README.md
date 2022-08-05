@@ -14,6 +14,7 @@ Each recipe is a self-contained module.
 8. [Creating Dead Letter Queues](kafka-dead-letter) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/creating-dead-letter-queues-from-and-to-apache-kafka-with-apache-flink/)
 9. [Using Session Windows](session-window) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/using-session-windows/)
 10. [Serializing Timestamped Data](latest-transaction) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/serializing-timestamped-data/)
+11. [Reading Apache Kafka Headers](kafka-headers) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/reading-apache-kafka-headers-with-apache-flink/)
 
 ### Requirements
 
