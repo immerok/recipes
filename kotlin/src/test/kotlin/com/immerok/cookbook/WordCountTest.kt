@@ -66,8 +66,6 @@ internal class WordCountTest {
             dataStreamCollector.startCollect(jobClient)
 
             assertThat(testSink.output).toIterable().isNotEmpty
-
-            jobClient.jobExecutionResult.get()
         }
     }
 }

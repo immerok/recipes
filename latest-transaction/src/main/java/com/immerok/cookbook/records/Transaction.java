@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-// @JsonPropertyOrder({"t_time", "t_id", "t_customer_id", "t_amount"})
 public class Transaction {
 
     /**
@@ -24,9 +21,6 @@ public class Transaction {
     public long t_id;
     public long t_customer_id;
     public BigDecimal t_amount;
-
-    private transient CsvMapper mapper =
-            (CsvMapper) CsvMapper.builder().build().registerModule(new JavaTimeModule());
 
     public Transaction() {}
 

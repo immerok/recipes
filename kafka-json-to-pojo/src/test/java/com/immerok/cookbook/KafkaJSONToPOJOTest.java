@@ -20,8 +20,9 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(FlinkMiniClusterExtension.class)
 class KafkaJSONToPOJOTest {
 
     /**
@@ -38,9 +39,6 @@ class KafkaJSONToPOJOTest {
             KafkaJSONToPOJO.runJob();
         }
     }
-
-    @RegisterExtension
-    static final FlinkMiniClusterExtension FLINK = new FlinkMiniClusterExtension();
 
     @Test
     void JobProducesAtLeastOneResult() throws Exception {

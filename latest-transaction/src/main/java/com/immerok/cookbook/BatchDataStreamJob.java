@@ -33,7 +33,7 @@ public class BatchDataStreamJob {
 
         FileSource<Transaction> boundedSource =
                 FileSource.forRecordStreamFormat(
-                                new JsonPojoInputFormat(Transaction.class), new Path(inputURI))
+                                new JsonPojoInputFormat<>(Transaction.class), new Path(inputURI))
                         .build();
 
         DataStreamWorkflow.defineWorkflow(env, boundedSource, sinkApplier);
