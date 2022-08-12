@@ -7,7 +7,7 @@ import org.apache.flink.table.api.TableResult;
 
 public class StreamingTableJob {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         produceResults("transactions").print();
     }
 

@@ -35,7 +35,7 @@ public class JsonPojoInputFormat<T> extends SimpleStreamFormat<T> {
             throws IOException {
         final BufferedReader reader =
                 new BufferedReader(new InputStreamReader(stream, DEFAULT_CHARSET_NAME));
-        return new JsonReader(reader, klass);
+        return new JsonReader<>(reader, klass);
     }
 
     @Override
