@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.util.Iterator;
+import java.util.stream.Stream;
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
 import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
 import net.mguenther.kafka.junit.SendValues;
@@ -23,24 +23,29 @@ public class CookbookKafkaCluster extends EmbeddedKafkaCluster {
     }
 
     /**
-     * Creates a topic with the given name and asynchronously writes all data from the given
-     * iterator to that topic.
+     * Creates a topic with the given name and synchronously writes all data from the given stream
+     * to that topic.
      *
-     * @param topic topic name
-     * @param topicData topic data to write
-     * @param <EVENT> event data type
+     * @param topic topic to create
+     * @param topicData data to write
+     * @param <EVENT> event type
      */
-    public <EVENT> void createTopic(String topic, Iterator<EVENT> topicData) {
-        // eagerly create topic to prevent cases where the job fails because by the time it started
-        // no value was written yet.
-        createTopic(TopicConfig.withName(topic).build());
-        new Thread(
-                        () -> {
-                            while (topicData.hasNext()) {
-                                sendEventAsJSON(topic, topicData.next());
-                            }
-                        },
-                        "Generator")
+    public <EVENT> void createTopic(String topic, Stream<EVENT> topicData) {
+        createTopic(TopicConfig.withName(topic));
+        topicData.forEach(record -> sendEventAsJSON(topic, record));
+    }
+
+    /**
+     * Creates a topic with the given name and asynchronously writes all data from the given stream
+     * to that topic.
+     *
+     * @param topic topic to create
+     * @param topicData data to write
+     * @param <EVENT> event type
+     */
+    public <EVENT> void createTopicAsync(String topic, Stream<EVENT> topicData) {
+        createTopic(TopicConfig.withName(topic));
+        new Thread(() -> topicData.forEach(record -> sendEventAsJSON(topic, record)), "Generator")
                 .start();
     }
 

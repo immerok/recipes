@@ -4,7 +4,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
 import com.immerok.cookbook.records.Transaction;
-import com.immerok.cookbook.records.TransactionIterator;
+import com.immerok.cookbook.records.TransactionSupplier;
 import com.immerok.cookbook.sinks.PrintSink;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
 import com.immerok.cookbook.utils.DataStreamCollectUtil;
@@ -14,6 +14,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.types.Row;
@@ -30,7 +31,7 @@ class LatestTransactionTest {
     @Disabled("Not running 'testStreamingDataStreamJob()' because it is a manual test.")
     void testStreamingDataStreamJob() throws Exception {
         try (final CookbookKafkaCluster kafka = new CookbookKafkaCluster()) {
-            kafka.createTopic("transactions", new TransactionIterator());
+            kafka.createTopicAsync("transactions", Stream.generate(new TransactionSupplier()));
 
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
             StreamingDataStreamJob.setupJob(
@@ -54,7 +55,7 @@ class LatestTransactionTest {
     @Disabled("Not running 'testStreamingTableJob()' because it is a manual test.")
     void testStreamingTableJob() {
         try (final CookbookKafkaCluster kafka = new CookbookKafkaCluster()) {
-            kafka.createTopic("transactions", new TransactionIterator());
+            kafka.createTopicAsync("transactions", Stream.generate(new TransactionSupplier()));
 
             StreamingTableJob.produceResults("transactions").print();
         }
