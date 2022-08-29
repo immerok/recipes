@@ -15,6 +15,8 @@ Each recipe is a self-contained module.
 9. [Using Session Windows](session-window) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/using-session-windows/)
 10. [Serializing Timestamped Data](latest-transaction) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/serializing-timestamped-data/)
 11. [Reading Apache Kafka Headers](kafka-headers) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/reading-apache-kafka-headers-with-apache-flink/)
+12. [Upgrading Flink (Table API)](compiled-plan) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/compiled-plan/)
+13. [Alerting when Problems Persist](pattern-matching-cep) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/pattern-matching-with-cep/)
 
 ### Requirements
 

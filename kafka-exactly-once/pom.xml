@@ -9,7 +9,7 @@
     <name>Flink Cookbook Recipe - Exactly-once with Apache Kafka</name>
 
     <properties>
-        <flink.version>1.15.1</flink.version>
+        <flink.version>1.15.2</flink.version>
         <jackson.version>2.13.3</jackson.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <kafka.version>3.2.0</kafka.version>
@@ -23,6 +23,12 @@
     <dependencies>
         <!-- Apache Flink dependencies -->
         <!-- These dependencies are provided, because they should not be packaged into the JAR file. -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-core</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>
@@ -39,11 +45,6 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-core</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <dependency>

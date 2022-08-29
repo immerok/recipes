@@ -9,7 +9,7 @@
     <name>Flink Cookbook Recipe - Compiled Plan</name>
 
     <properties>
-        <flink.version>1.15.1</flink.version>
+        <flink.version>1.15.2</flink.version>
         <jackson.version>2.13.3</jackson.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <kafka.version>3.2.0</kafka.version>
