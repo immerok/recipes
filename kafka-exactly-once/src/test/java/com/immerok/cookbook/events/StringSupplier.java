@@ -4,7 +4,7 @@ import com.github.javafaker.Faker;
 import java.util.function.Supplier;
 
 /** A supplier that produces Strings. */
-public class StringSuppplier implements Supplier<String> {
+public class StringSupplier implements Supplier<String> {
     private final Faker faker = new Faker();
 
     @Override

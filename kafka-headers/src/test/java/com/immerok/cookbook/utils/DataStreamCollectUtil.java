@@ -30,7 +30,7 @@ import org.apache.flink.streaming.api.operators.collect.CollectStreamSink;
  *
  * DataStreamCollectUtil collectUtil = new DataStreamCollectUtil();
  *
- * DataStreamCollector<EnrichedEvent> collector = new DataStreamCollector();
+ * DataStreamCollector<Event> collector = new DataStreamCollector();
  * collectionUtil.collectAsync(streamToCollect, collector);
  *
  * JobClient jobClient = env.executeAsync();

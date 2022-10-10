@@ -10,7 +10,7 @@
 
     <properties>
         <flink.version>1.15.2</flink.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <kafka.version>3.2.0</kafka.version>
         <log4j.version>2.17.2</log4j.version>
@@ -179,6 +179,25 @@
                 <configuration>
                     <argLine>--illegal-access=permit</argLine>
                 </configuration>
+            </plugin>
+            <!-- Add src/test/java to test sources -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

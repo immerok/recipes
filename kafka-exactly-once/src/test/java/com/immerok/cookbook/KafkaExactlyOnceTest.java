@@ -4,7 +4,7 @@ import static com.immerok.cookbook.KafkaExactlyOnce.OUTPUT;
 import static com.immerok.cookbook.KafkaExactlyOnce.TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.immerok.cookbook.events.StringSuppplier;
+import com.immerok.cookbook.events.StringSupplier;
 import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
 import java.util.List;
@@ -30,7 +30,7 @@ class KafkaExactlyOnceTest {
     @Disabled("Not running 'testProductionJob()' because it is a manual test.")
     void testProductionJob() throws Exception {
         try (final CookbookKafkaCluster kafka = new CookbookKafkaCluster()) {
-            kafka.createTopicAsync(TOPIC, Stream.generate(new StringSuppplier()));
+            kafka.createTopicAsync(TOPIC, Stream.generate(new StringSupplier()));
             kafka.createTopic(TopicConfig.withName(OUTPUT));
 
             KafkaExactlyOnce.runJob();
@@ -42,7 +42,7 @@ class KafkaExactlyOnceTest {
         final int numExpectedRecords = 50;
         try (final CookbookKafkaCluster kafka = new CookbookKafkaCluster()) {
             kafka.createTopic(
-                    TOPIC, Stream.generate(new StringSuppplier()).limit(numExpectedRecords));
+                    TOPIC, Stream.generate(new StringSupplier()).limit(numExpectedRecords));
 
             KafkaSource<String> source =
                     KafkaSource.<String>builder()
