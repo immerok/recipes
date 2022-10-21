@@ -1,9 +1,9 @@
 package com.immerok.cookbook.events;
 
-import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier that produces Events. */
 public class EventSupplier implements Supplier<Event> {

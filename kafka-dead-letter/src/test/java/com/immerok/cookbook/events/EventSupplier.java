@@ -1,8 +1,8 @@
 package com.immerok.cookbook.events;
 
-import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier of events. Every 10th element is malformed. */
 public class EventSupplier implements Supplier<Object> {

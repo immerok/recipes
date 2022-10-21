@@ -1,7 +1,7 @@
 package com.immerok.cookbook.records;
 
-import com.github.javafaker.Faker;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier that produces Customers. */
 public class CustomerSupplier implements Supplier<Customer> {

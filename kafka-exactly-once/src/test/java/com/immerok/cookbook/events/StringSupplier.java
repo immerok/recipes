@@ -1,7 +1,7 @@
 package com.immerok.cookbook.events;
 
-import com.github.javafaker.Faker;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier that produces Strings. */
 public class StringSupplier implements Supplier<String> {

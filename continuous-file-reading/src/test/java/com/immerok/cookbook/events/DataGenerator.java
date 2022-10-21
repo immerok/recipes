@@ -1,12 +1,12 @@
 package com.immerok.cookbook.events;
 
-import com.github.javafaker.Faker;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import net.datafaker.Faker;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SequenceWriter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvSchema;
