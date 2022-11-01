@@ -4,21 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.immerok.cookbook.events.DataGenerator;
 import com.immerok.cookbook.events.Event;
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import java.io.File;
 import java.util.List;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.apache.flink.util.CloseableIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class ContinuousFileReadingTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Runs the production job against continuously generated test files into temporarily {@code
@@ -39,16 +42,14 @@ class ContinuousFileReadingTest {
             throws Exception {
         final List<Event> expectedEvents = DataGenerator.generateFile(tempDirectory, readDirectory);
 
-        final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-
-        final DataStreamCollector<Event> testSink = new DataStreamCollector<>();
+        final DataStream.Collector<Event> testSink = new DataStream.Collector<>();
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         ContinuousFileReading.defineWorkflow(
                 env,
                 Path.fromLocalFile(readDirectory),
-                workflow -> dataStreamCollector.collectAsync(workflow, testSink));
-        dataStreamCollector.startCollect(env.executeAsync());
+                workflow -> workflow.collectAsync(testSink));
+        env.executeAsync();
 
         try (final CloseableIterator<Event> output = testSink.getOutput()) {
             for (Event expectedEvent : expectedEvents) {

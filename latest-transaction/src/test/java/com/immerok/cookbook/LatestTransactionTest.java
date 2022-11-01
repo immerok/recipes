@@ -2,30 +2,33 @@ package com.immerok.cookbook;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.records.Transaction;
 import com.immerok.cookbook.records.TransactionSupplier;
-import com.immerok.cookbook.sinks.PrintSink;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSink;
 import org.apache.flink.table.api.TableResult;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.apache.flink.types.Row;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.CloseableIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class LatestTransactionTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     @Test
     @Disabled("Not running 'testStreamingDataStreamJob()' because it is a manual test.")
@@ -75,13 +78,11 @@ class LatestTransactionTest {
                 LatestTransactionTest.class.getResource("/transactions.json").toURI();
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-        final DataStreamCollector<Transaction> testSink = new DataStreamCollector<>();
+        final DataStream.Collector<Transaction> testSink = new DataStream.Collector<>();
 
-        BatchDataStreamJob.setupJob(
-                env, testdataURI, workflow -> dataStreamCollector.collectAsync(workflow, testSink));
+        BatchDataStreamJob.setupJob(env, testdataURI, workflow -> workflow.collectAsync(testSink));
 
-        dataStreamCollector.startCollect(env.executeAsync());
+        env.executeAsync();
         assertThat(testSink.getOutput())
                 .toIterable()
                 .filteredOn(t -> t.t_customer_id == 0)

@@ -18,7 +18,7 @@ package com.immerok.cookbook;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.records.Event;
 import com.immerok.cookbook.records.SubEventListTypeInfoFactory;
 import java.nio.file.Path;
@@ -27,9 +27,10 @@ import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.core.execution.SavepointFormatType;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
@@ -49,8 +50,11 @@ import org.junit.jupiter.api.io.TempDir;
  * {@link #createSavepointWithKryo()} and set {@link #MANUAL_MIGRATED_SAVEPOINT} to the printed
  * savepoint path.
  */
-@ExtendWith(FlinkMiniClusterExtension.class)
 class MigrationTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     private static final String MANUAL_SAVEPOINT_DIRECTORY = "<insert path here>";
     private static final String MANUAL_MIGRATED_SAVEPOINT =

@@ -2,7 +2,7 @@ package com.immerok.cookbook;
 
 import static com.immerok.cookbook.PatternMatchingCEP.TOPIC;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.patterns.MatcherV1;
 import com.immerok.cookbook.patterns.MatcherV2;
 import com.immerok.cookbook.patterns.MatcherV3;
@@ -12,9 +12,10 @@ import com.immerok.cookbook.records.SensorReading;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
 import java.time.Duration;
 import java.util.stream.Stream;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * These production tests each run their respective PatternMatcher against an oscillating event
@@ -26,8 +27,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * <p>The original event stream is printed to STDOUT and events that conclude a pattern match are
  * also printed to STDERR.
  */
-@ExtendWith(FlinkMiniClusterExtension.class)
 class ProductionJobTests {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     private static final int EVENTS_PER_SECOND = 1;
 

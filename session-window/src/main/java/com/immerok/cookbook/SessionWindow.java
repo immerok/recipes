@@ -3,7 +3,6 @@ package com.immerok.cookbook;
 import com.immerok.cookbook.events.Event;
 import com.immerok.cookbook.events.EventDeserializationSchema;
 import com.immerok.cookbook.events.UserActivity;
-import com.immerok.cookbook.sinks.PrintSink;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -15,6 +14,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSink;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 

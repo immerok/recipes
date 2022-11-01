@@ -5,7 +5,7 @@ import static com.immerok.cookbook.records.SensorReading.HOT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.patterns.MatcherV1;
 import com.immerok.cookbook.patterns.MatcherV2;
 import com.immerok.cookbook.patterns.MatcherV3;
@@ -15,24 +15,24 @@ import com.immerok.cookbook.records.RisingSensorReadingSupplier;
 import com.immerok.cookbook.records.SensorReading;
 import com.immerok.cookbook.records.SensorReadingDeserializationSchema;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
+import org.apache.flink.types.PojoTestUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class PatternMatchingCEPTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     private static final int EVENTS_PER_SECOND = 10;
 
@@ -42,10 +42,7 @@ class PatternMatchingCEPTest {
      */
     @Test
     void sensorReadingsAreAPOJOs() {
-        TypeSerializer<SensorReading> serializer =
-                TypeInformation.of(SensorReading.class).createSerializer(new ExecutionConfig());
-
-        assertThat(serializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojo(SensorReading.class);
     }
 
     @Test
@@ -168,9 +165,8 @@ class PatternMatchingCEPTest {
                             .setValueOnlyDeserializer(new SensorReadingDeserializationSchema())
                             .build();
 
-            final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-            final DataStreamCollector<SensorReading> resultSink = new DataStreamCollector<>();
-            final DataStreamCollector<SensorReading> eventSink = new DataStreamCollector<>();
+            final DataStream.Collector<SensorReading> resultSink = new DataStream.Collector<>();
+            final DataStream.Collector<SensorReading> eventSink = new DataStream.Collector<>();
 
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
             PatternMatchingCEP.defineWorkflow(
@@ -178,10 +174,10 @@ class PatternMatchingCEPTest {
                     source,
                     patternMatcher,
                     limitOfHeatTolerance,
-                    workflow -> dataStreamCollector.collectAsync(workflow, resultSink),
-                    workflow -> dataStreamCollector.collectAsync(workflow, eventSink));
+                    workflow -> workflow.collectAsync(resultSink),
+                    workflow -> workflow.collectAsync(eventSink));
 
-            dataStreamCollector.startCollect(env.executeAsync());
+            env.executeAsync();
 
             List<SensorReading> results = new ArrayList<>();
             resultSink.getOutput().forEachRemaining(results::add);

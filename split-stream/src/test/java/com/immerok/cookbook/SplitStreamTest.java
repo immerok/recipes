@@ -5,25 +5,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.immerok.cookbook.events.Event;
 import com.immerok.cookbook.events.EventSupplier;
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.util.Iterator;
 import java.util.stream.Stream;
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
+import org.apache.flink.types.PojoTestUtils;
 import org.apache.flink.util.CloseableIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class SplitStreamTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Runs the production job against an in-memory Kafka cluster.
@@ -42,10 +42,9 @@ class SplitStreamTest {
 
     @Test
     void JobProducesAtLeastOneResult() throws Exception {
-        final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
 
-        final DataStreamCollector<Event> criticalEventSink = new DataStreamCollector<>();
-        final DataStreamCollector<Event> majorEventSink = new DataStreamCollector<>();
+        final DataStream.Collector<Event> criticalEventSink = new DataStream.Collector<>();
+        final DataStream.Collector<Event> majorEventSink = new DataStream.Collector<>();
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -57,9 +56,9 @@ class SplitStreamTest {
 
         SplitStream.defineWorkflow(
                 source,
-                workflow -> dataStreamCollector.collectAsync(workflow, criticalEventSink),
-                workflow -> dataStreamCollector.collectAsync(workflow, majorEventSink));
-        dataStreamCollector.startCollect(env.executeAsync());
+                workflow -> workflow.collectAsync(criticalEventSink),
+                workflow -> workflow.collectAsync(majorEventSink));
+        env.executeAsync();
 
         try (CloseableIterator<Event> criticalEvents = criticalEventSink.getOutput();
                 CloseableIterator<Event> majorEvents = majorEventSink.getOutput()) {
@@ -79,9 +78,6 @@ class SplitStreamTest {
     /** Verify that Flink recognizes the Event type as a POJO that it can serialize efficiently. */
     @Test
     void EventsAreAPOJOs() {
-        TypeSerializer<Event> eventSerializer =
-                TypeInformation.of(Event.class).createSerializer(new ExecutionConfig());
-
-        assertThat(eventSerializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojo(Event.class);
     }
 }

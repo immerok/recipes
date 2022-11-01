@@ -16,13 +16,9 @@
  */
 package com.immerok.cookbook.records;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
+import org.apache.flink.types.PojoTestUtils;
 import org.junit.jupiter.api.Test;
 
 class SubEventListTypeInfoFactoryTest {
@@ -33,14 +29,7 @@ class SubEventListTypeInfoFactoryTest {
      */
     @Test
     void testDoesNotRequireKryoByDefault() {
-        final ExecutionConfig executionConfig = new ExecutionConfig();
-        // disable generic types to force a failure if Kryo is actually used
-        executionConfig.disableGenericTypes();
-
-        TypeSerializer<Event> eventSerializer =
-                TypeInformation.of(Event.class).createSerializer(new ExecutionConfig());
-
-        assertThat(eventSerializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojoWithoutKryo(Event.class);
     }
 
     /**
@@ -50,13 +39,8 @@ class SubEventListTypeInfoFactoryTest {
     @Test
     void testTemporarilyEnableKryoPath() throws Exception {
         try (AutoCloseable ignored = SubEventListTypeInfoFactory.temporarilyEnableKryoPath()) {
-            final ExecutionConfig executionConfig = new ExecutionConfig();
-            // disable generic types to force a failure if Kryo is actually used
-            executionConfig.disableGenericTypes();
-
-            assertThatThrownBy(
-                            () -> TypeInformation.of(Event.class).createSerializer(executionConfig))
-                    .isInstanceOf(UnsupportedOperationException.class);
+            assertThatThrownBy(() -> PojoTestUtils.assertSerializedAsPojoWithoutKryo(Event.class))
+                    .isInstanceOf(AssertionError.class);
         }
     }
 }

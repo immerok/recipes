@@ -6,26 +6,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.immerok.cookbook.events.Event;
 import com.immerok.cookbook.events.EventDeserializationSchema;
 import com.immerok.cookbook.events.EventSupplier;
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.util.stream.Stream;
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.core.execution.JobClient;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
+import org.apache.flink.types.PojoTestUtils;
 import org.apache.flink.util.CloseableIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class LateDataToSeparateSinkTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Runs the production job against an in-memory Kafka cluster.
@@ -58,22 +57,16 @@ class LateDataToSeparateSinkTest {
                             .setValueOnlyDeserializer(new EventDeserializationSchema())
                             .build();
 
-            final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-
-            final DataStreamCollector<Event> mainTestSink = new DataStreamCollector<>();
-            final DataStreamCollector<Event> lateTestSink = new DataStreamCollector<>();
+            final DataStream.Collector<Event> mainTestSink = new DataStream.Collector<>();
+            final DataStream.Collector<Event> lateTestSink = new DataStream.Collector<>();
 
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
             LateDataToSeparateSink.defineWorkflow(
                     env,
                     source,
-                    mainWorkflowOutput ->
-                            dataStreamCollector.collectAsync(mainWorkflowOutput, mainTestSink),
-                    lateWorkflowInput ->
-                            dataStreamCollector.collectAsync(lateWorkflowInput, lateTestSink));
-            final JobClient jobClient = env.executeAsync();
-
-            dataStreamCollector.startCollect(jobClient);
+                    mainWorkflowOutput -> mainWorkflowOutput.collectAsync(mainTestSink),
+                    lateWorkflowInput -> lateWorkflowInput.collectAsync(lateTestSink));
+            env.executeAsync();
 
             try (final CloseableIterator<Event> mainEvents = mainTestSink.getOutput();
                     final CloseableIterator<Event> lateEvents = lateTestSink.getOutput()) {
@@ -94,9 +87,6 @@ class LateDataToSeparateSinkTest {
     /** Verify that Flink recognizes the Event type as a POJO that it can serialize efficiently. */
     @Test
     void EventsAreAPOJOs() {
-        TypeSerializer<Event> eventSerializer =
-                TypeInformation.of(Event.class).createSerializer(new ExecutionConfig());
-
-        assertThat(eventSerializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojo(Event.class);
     }
 }

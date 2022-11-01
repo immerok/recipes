@@ -5,7 +5,7 @@ import static com.immerok.cookbook.CompiledPlanRecipe.printSinkDDL;
 import static com.immerok.cookbook.CompiledPlanRecipe.streamingDeduplication;
 import static com.immerok.cookbook.CompiledPlanRecipe.transactionsDDL;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.records.DuplicatingTransactionSupplier;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
 import java.io.IOException;
@@ -16,14 +16,18 @@ import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class CompiledPlanRecipeTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Set an explicit path here if you want the plan file to be available after running these tests

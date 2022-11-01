@@ -4,7 +4,6 @@ import com.immerok.cookbook.patterns.MatcherV3;
 import com.immerok.cookbook.patterns.PatternMatcher;
 import com.immerok.cookbook.records.SensorReading;
 import com.immerok.cookbook.records.SensorReadingDeserializationSchema;
-import com.immerok.cookbook.sinks.PrintSink;
 import java.time.Duration;
 import java.util.function.Consumer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -15,6 +14,7 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSink;
 
 public class PatternMatchingCEP {
 

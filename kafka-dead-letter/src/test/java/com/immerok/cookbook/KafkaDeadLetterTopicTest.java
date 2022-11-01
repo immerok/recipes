@@ -5,26 +5,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.immerok.cookbook.events.Event;
 import com.immerok.cookbook.events.EventSupplier;
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.util.stream.Stream;
-import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
+import org.apache.flink.types.PojoTestUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 class KafkaDeadLetterTopicTest {
+
     @RegisterExtension
-    static final FlinkMiniClusterExtension FLINK = new FlinkMiniClusterExtension();
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Runs the production job against an in-memory Kafka cluster.
@@ -56,18 +55,16 @@ class KafkaDeadLetterTopicTest {
                             .setValueOnlyDeserializer(new SimpleStringSchema())
                             .build();
 
-            final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-
-            final DataStreamCollector<Event> testSink = new DataStreamCollector<>();
-            final DataStreamCollector<String> testErrorSink = new DataStreamCollector<>();
+            final DataStream.Collector<Event> testSink = new DataStream.Collector<>();
+            final DataStream.Collector<String> testErrorSink = new DataStream.Collector<>();
 
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
             KafkaDeadLetterTopic.defineWorkflow(
                     env,
                     source,
-                    workflow -> dataStreamCollector.collectAsync(workflow, testSink),
-                    errors -> dataStreamCollector.collectAsync(errors, testErrorSink));
-            dataStreamCollector.startCollect(env.executeAsync());
+                    workflow -> workflow.collectAsync(testSink),
+                    errors -> errors.collectAsync(testErrorSink));
+            env.executeAsync();
 
             assertThat(testSink.getOutput()).toIterable().isNotEmpty();
             assertThat(testErrorSink.getOutput()).toIterable().isNotEmpty();
@@ -77,9 +74,6 @@ class KafkaDeadLetterTopicTest {
     /** Verify that Flink recognizes the Event type as a POJO that it can serialize efficiently. */
     @Test
     void EventsAreAPOJOs() {
-        TypeSerializer<Event> eventSerializer =
-                TypeInformation.of(Event.class).createSerializer(new ExecutionConfig());
-
-        assertThat(eventSerializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojo(Event.class);
     }
 }

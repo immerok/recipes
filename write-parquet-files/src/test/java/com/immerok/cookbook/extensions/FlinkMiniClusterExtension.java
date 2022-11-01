@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 /**
  * A wrapper around a {@link MiniClusterWithClientResource} that allows it to be used as a JUnit5
  * Extension.
+ *
+ * <p>This class will be removed once 1.16.1 is released, containing FLINK-29693 that allows
+ * controlling the default parallelism via the configuration of the MiniCluster.
  */
 public class FlinkMiniClusterExtension implements BeforeAllCallback, AfterAllCallback {
 
@@ -46,7 +49,7 @@ public class FlinkMiniClusterExtension implements BeforeAllCallback, AfterAllCal
                 flinkCluster.getMiniCluster(),
                 config.getOptional(CoreOptions.DEFAULT_PARALLELISM).orElse(DEFAULT_PARALLELISM));
 
-        LOG.info("Web UI is available at {}", flinkCluster.getRestAddres());
+        LOG.info("Web UI is available at {}", flinkCluster.getRestAddress());
     }
 
     @Override

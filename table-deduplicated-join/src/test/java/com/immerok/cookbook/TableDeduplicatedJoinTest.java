@@ -4,15 +4,13 @@ import static com.immerok.cookbook.TableDeduplicatedJoin.CUSTOMER_TOPIC;
 import static com.immerok.cookbook.TableDeduplicatedJoin.TRANSACTION_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.immerok.cookbook.extensions.FlinkMiniClusterExtension;
+import com.immerok.cookbook.extensions.MiniClusterExtensionFactory;
 import com.immerok.cookbook.records.Customer;
 import com.immerok.cookbook.records.CustomerSupplier;
 import com.immerok.cookbook.records.DuplicatingTransactionSupplier;
 import com.immerok.cookbook.records.TestData;
 import com.immerok.cookbook.records.Transaction;
 import com.immerok.cookbook.utils.CookbookKafkaCluster;
-import com.immerok.cookbook.utils.DataStreamCollectUtil;
-import com.immerok.cookbook.utils.DataStreamCollector;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -22,13 +20,17 @@ import java.util.stream.StreamSupport;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.apache.flink.types.Row;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(FlinkMiniClusterExtension.class)
 class TableDeduplicatedJoinTest {
+
+    @RegisterExtension
+    static final MiniClusterExtension FLINK =
+            MiniClusterExtensionFactory.withDefaultConfiguration();
 
     /**
      * Runs the production job against an in-memory Kafka cluster.
@@ -55,16 +57,15 @@ class TableDeduplicatedJoinTest {
         DataStream<Customer> customerStream = env.fromElements(TestData.CUSTOMERS);
         DataStream<Transaction> transactionStream = env.fromElements(TestData.TRANSACTIONS);
 
-        final DataStreamCollectUtil dataStreamCollector = new DataStreamCollectUtil();
-        final DataStreamCollector<Row> testSink = new DataStreamCollector<>();
+        final DataStream.Collector<Row> testSink = new DataStream.Collector<>();
 
         TableDeduplicatedJoin.defineWorkflow(
                 tableEnv,
                 customerStream,
                 transactionStream,
-                workflow -> dataStreamCollector.collectAsync(workflow, testSink));
+                workflow -> workflow.collectAsync(testSink));
 
-        dataStreamCollector.startCollect(env.executeAsync());
+        env.executeAsync();
 
         assertThat(testSink.getOutput())
                 .toIterable()

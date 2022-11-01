@@ -2,7 +2,6 @@ package com.immerok.cookbook;
 
 import com.immerok.cookbook.records.JsonPojoInputFormat;
 import com.immerok.cookbook.records.Transaction;
-import com.immerok.cookbook.sinks.PrintSink;
 import com.immerok.cookbook.workflows.DataStreamWorkflow;
 import java.net.URI;
 import java.util.function.Consumer;
@@ -12,6 +11,7 @@ import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSink;
 
 public class BatchDataStreamJob {
 

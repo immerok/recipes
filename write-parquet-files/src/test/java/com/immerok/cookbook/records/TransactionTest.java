@@ -1,11 +1,6 @@
 package com.immerok.cookbook.records;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.typeutils.runtime.PojoSerializer;
+import org.apache.flink.types.PojoTestUtils;
 import org.junit.jupiter.api.Test;
 
 class TransactionTest {
@@ -15,9 +10,6 @@ class TransactionTest {
      */
     @Test
     void testRecognizedAsPojo() {
-        TypeSerializer<Transaction> eventSerializer =
-                TypeInformation.of(Transaction.class).createSerializer(new ExecutionConfig());
-
-        assertThat(eventSerializer).isInstanceOf(PojoSerializer.class);
+        PojoTestUtils.assertSerializedAsPojo(Transaction.class);
     }
 }

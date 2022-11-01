@@ -2,7 +2,6 @@ package com.immerok.cookbook;
 
 import com.immerok.cookbook.events.EnrichedEvent;
 import com.immerok.cookbook.events.KafkaHeadersEventDeserializationSchema;
-import com.immerok.cookbook.sinks.PrintSink;
 import java.util.function.Consumer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.connector.source.Source;
@@ -11,6 +10,7 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSink;
 
 public class KafkaHeaders {
 
