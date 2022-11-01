@@ -1,6 +1,9 @@
 package com.immerok.cookbook.extensions;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.util.TestStreamEnvironment;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -16,19 +19,32 @@ public class FlinkMiniClusterExtension implements BeforeAllCallback, AfterAllCal
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkMiniClusterExtension.class);
 
-    private static final int PARALLELISM = 2;
+    public static final int DEFAULT_PARALLELISM = 2;
+
     private static MiniClusterWithClientResource flinkCluster;
+
+    private final Configuration config = new Configuration();
+
+    public FlinkMiniClusterExtension() {}
+
+    public FlinkMiniClusterExtension(Configuration config) {
+        this.config.addAll(config);
+    }
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         flinkCluster =
                 new MiniClusterWithClientResource(
                         new MiniClusterResourceConfiguration.Builder()
-                                .setNumberSlotsPerTaskManager(PARALLELISM)
+                                .setNumberSlotsPerTaskManager(DEFAULT_PARALLELISM)
+                                .setConfiguration(config)
                                 .setNumberTaskManagers(1)
                                 .build());
 
         flinkCluster.before();
+        TestStreamEnvironment.setAsContext(
+                flinkCluster.getMiniCluster(),
+                config.getOptional(CoreOptions.DEFAULT_PARALLELISM).orElse(DEFAULT_PARALLELISM));
 
         LOG.info("Web UI is available at {}", flinkCluster.getRestAddres());
     }

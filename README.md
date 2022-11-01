@@ -18,6 +18,7 @@ Each recipe is a self-contained module.
 12. [Upgrading Flink (Table API)](compiled-plan) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/compiled-plan/)
 13. [Alerting when Problems Persist](pattern-matching-cep) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/pattern-matching-with-cep/)
 14. [Migrating state away from Kryo](kryo-migration) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/migrating-state-away-from-kryo/)
+15. [Write Parquet Files](write-parquet-files) -> [Detailed explanation](https://docs.immerok.cloud/docs/cookbook/read-from-apache-kafka-write-to-parquet-files-with-apache-flink/)
 
 ### Requirements
 
