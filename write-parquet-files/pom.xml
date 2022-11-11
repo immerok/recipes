@@ -10,10 +10,10 @@
 
     <properties>
         <flink.version>1.16.0</flink.version>
-        <jackson.version>2.13.3</jackson.version>
-        <junit.jupiter.version>5.8.2</junit.jupiter.version>
-        <kafka.version>3.2.0</kafka.version>
-        <log4j.version>2.17.2</log4j.version>
+        <jackson.version>2.14.0</jackson.version>
+        <junit.jupiter.version>5.9.1</junit.jupiter.version>
+        <kafka.version>3.2.2</kafka.version>
+        <log4j.version>2.19.0</log4j.version>
         <maven.compiler.source>${target.java.version}</maven.compiler.source>
         <maven.compiler.target>${target.java.version}</maven.compiler.target>
         <!-- Flink 1.15.2 uses Parquet 1.12.2
@@ -21,7 +21,7 @@
         Parquet 1.12.2 uses Hadoop 2.10.1
         https://github.com/apache/parquet-mr/blob/apache-parquet-1.12.2/pom.xml#L82
         -->
-        <parquet.hadoop.version>2.10.1</parquet.hadoop.version>
+        <parquet.hadoop.version>2.10.2</parquet.hadoop.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <target.java.version>11</target.java.version>
     </properties>
@@ -207,7 +207,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
                     <source>${target.java.version}</source>
                     <target>${target.java.version}</target>
@@ -234,7 +234,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.4.1</version>
                 <executions>
                     <!-- Run shade goal on package phase -->
                     <execution>

@@ -53,7 +53,7 @@ public class KafkaExactlyOnce {
         KafkaSink<String> sink =
                 KafkaSink.<String>builder()
                         .setBootstrapServers("localhost:9092")
-                        .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
+                        .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
                         .setTransactionalIdPrefix("KafkaExactlyOnceRecipe")
                         .setKafkaProducerConfig(producerProperties)
                         .setRecordSerializer(serializer)

@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_multiple_files = true;
+
+package com.immerok.cookbook.protobuf;
+option java_package = "com.immerok.cookbook";
+
+message Transaction {
+  optional string t_time = 1;
+  optional int64 t_id = 2;
+  optional int64 t_customer_id = 3;
+  optional double t_amount = 4;
+}
